@@ -171,6 +171,7 @@ void BaseRealSenseNode::publishTopics()
     setupDevice();
     setupErrorCallback();
     setupPublishers();
+    advertiseServices();
     setupStreams();
     setupFilters();
     publishStaticTransforms();
@@ -632,6 +633,37 @@ void BaseRealSenseNode::setupDevice()
         throw;
     }
 }
+
+void BaseRealSenseNode::advertiseServices()
+{
+
+reset_service_= _pnh.advertiseService("reset_camera",&BaseRealSenseNode::ResetCameraService, this);
+
+
+}
+
+
+
+
+ bool BaseRealSenseNode::ResetCameraService(realsense2_camera::ResetCamera::Request & req,
+      realsense2_camera::ResetCamera::Response & res)
+  {    
+          ROS_WARN_STREAM("Hardware Resetting T265 device");
+            // dev.hardware_reset();
+        std::cout<< "T265 Reset called"<<std::endl;
+      _dev_sensors = _dev.query_sensors();
+
+      _dev_sensors[0].stop();
+
+      std::this_thread::sleep_for( std::chrono::seconds( 1 ) ); // wait a little bit
+
+      std::string module_name= "Tracking Module";
+      _dev_sensors[0].start(_sensors_callback[module_name]);
+      res.reset_feedback=true;
+      return true;
+  }
+
+
 
 void BaseRealSenseNode::setupPublishers()
 {

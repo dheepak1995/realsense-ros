@@ -19,6 +19,9 @@
 #include <mutex>
 #include <atomic>
 
+                                                               //////////////////////////////////////////
+#include <realsense2_camera/ResetCamera.h>
+
 namespace realsense2_camera
 {
     struct FrequencyDiagnostics
@@ -102,6 +105,9 @@ namespace realsense2_camera
         virtual void publishTopics() override;
         virtual void registerDynamicReconfigCb(ros::NodeHandle& nh) override;
         virtual ~BaseRealSenseNode() {}
+                                                                                         ///////////////////////////////////////////////
+        virtual bool ResetCameraService(realsense2_camera::ResetCamera::Request & req,
+      realsense2_camera::ResetCamera::Response & res);
 
     public:
         enum imu_sync_method{NONE, COPY, LINEAR_INTERPOLATION};
@@ -187,6 +193,9 @@ namespace realsense2_camera
         void setupDevice();
         void setupErrorCallback();
         void setupPublishers();
+
+        void advertiseServices();                                   //////////////////////////////////////////////////////
+        
         void enable_devices();
         void setupFilters();
         void setupStreams();
@@ -260,6 +269,10 @@ namespace realsense2_camera
         std::atomic_bool _is_initialized_time_base;
         double _camera_time_base;
         std::map<stream_index_pair, std::vector<rs2::stream_profile>> _enabled_profiles;
+
+                                                                                            //////////////////////////////
+        ros::ServiceServer reset_service_;
+        
 
         ros::Publisher _pointcloud_publisher;
         ros::Time _ros_time_base;
